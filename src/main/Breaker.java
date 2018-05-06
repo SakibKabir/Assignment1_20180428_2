@@ -8,7 +8,7 @@ public class Breaker {
 	private String rdfID;
 	private String rdfIDSSH;
 	private String name;
-	private String state;
+	private boolean state;
 	private String equipmentContainer_rdfID;
 	private String baseVoltage_rdfID;
 
@@ -31,7 +31,7 @@ public class Breaker {
 	}
 
 	// --------Return r------//
-	public String state(Node node) {
+	public boolean state(Node node) {
 		searchSSH(node);
 		return state;
 	}
@@ -53,7 +53,7 @@ public class Breaker {
 		this.rdfID = element.getAttribute("rdf:ID");
 		this.name = element.getElementsByTagName("cim:IdentifiedObject.name").item(0).getTextContent();
 		this.equipmentContainer_rdfID = element.getElementsByTagName("cim:Equipment.EquipmentContainer").item(0)
-				.getAttributes().item(0).getTextContent();
+				.getAttributes().item(0).getTextContent().replaceAll("#", "");
 		// this.baseVoltage_rdfID =
 		// element.getElementsByTagName("cim:TransformerEnd.BaseVoltage").item(0).getAttributes().item(0).getTextContent();
 		// System.out.println("rdfID: " + rdfID + "\n" + "objectName: " + name + "\n" +
@@ -64,7 +64,7 @@ public class Breaker {
 	public Element searchSSH(Node node) {
 		Element element = (Element) node;
 		this.rdfIDSSH = element.getAttribute("rdf:about").replaceAll("#", "");
-		this.state = element.getElementsByTagName("cim:Switch.open").item(0).getTextContent();
+		this.state = Boolean.parseBoolean(element.getElementsByTagName("cim:Switch.open").item(0).getTextContent());
 		return element;
 	}
 }

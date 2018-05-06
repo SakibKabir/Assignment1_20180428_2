@@ -55,8 +55,8 @@ public class PowerTransformerEnd {
 		this.r =  Double.parseDouble(element.getElementsByTagName("cim:PowerTransformerEnd.r").item(0).getTextContent());
 		this.x =  Double.parseDouble(element.getElementsByTagName("cim:PowerTransformerEnd.x").item(0).getTextContent());
 		
-		this.Transformer_rdfID = element.getElementsByTagName("cim:PowerTransformerEnd.PowerTransformer").item(0).getAttributes().item(0).getTextContent();
-		this.baseVoltage_rdfID = element.getElementsByTagName("cim:TransformerEnd.BaseVoltage").item(0).getAttributes().item(0).getTextContent();
+		this.Transformer_rdfID = element.getElementsByTagName("cim:PowerTransformerEnd.PowerTransformer").item(0).getAttributes().item(0).getTextContent().replaceAll("#", "");
+		this.baseVoltage_rdfID = element.getElementsByTagName("cim:TransformerEnd.BaseVoltage").item(0).getAttributes().item(0).getTextContent().replaceAll("#", "");
 		// System.out.println("rdfID: " + rdfID + "\n" + "objectName: " + name + "\n" +
 		// "region_rdf:ID: " + region_rdfID + "\n");
 		return element;

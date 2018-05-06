@@ -15,7 +15,7 @@ public class SynchronousMachine {
 	private String genUnit_rdfID;
 	private String regControl_rdfID;
 	private String equipmentContainer_rdfID;
-	private String baseVoltage_rdfID;
+	private double baseVoltage;
 
 	// --------Return rdfID------//
 	public String rdfID(Node node) {
@@ -65,10 +65,10 @@ public class SynchronousMachine {
 		return equipmentContainer_rdfID;
 	}
 	
-	// -Return baseVoltage_rdfID- //
-	public String baseVoltage_rdfID(Node node) {
+	// -Return baseVoltage- //
+	public double baseVoltage(Node node) {
 		search(node);
-		return baseVoltage_rdfID;
+		return baseVoltage;
 	}
 
 	// ---Load text of node------//
@@ -82,15 +82,16 @@ public class SynchronousMachine {
 		this.P = ratedS*powerFactor;
 		this.Q = ratedS*Math.sqrt(1-powerFactor*powerFactor);
 
-		this.genUnit_rdfID = element.getElementsByTagName("cim:RotatingMachine.GeneratingUnit").item(0).getAttributes().item(0).getTextContent();
-		this.regControl_rdfID = element.getElementsByTagName("cim:RegulatingCondEq.RegulatingControl").item(0).getAttributes().item(0).getTextContent();
-		this.equipmentContainer_rdfID = element.getElementsByTagName("cim:Equipment.EquipmentContainer").item(0).getAttributes().item(0).getTextContent();
-		this.baseVoltage_rdfID = element.getElementsByTagName("cim:RotatingMachine.ratedU").item(0).getTextContent();
+		this.genUnit_rdfID = element.getElementsByTagName("cim:RotatingMachine.GeneratingUnit").item(0).getAttributes().item(0).getTextContent().replaceAll("#", "");
+		this.regControl_rdfID = element.getElementsByTagName("cim:RegulatingCondEq.RegulatingControl").item(0).getAttributes().item(0).getTextContent().replaceAll("#", "");
+		this.equipmentContainer_rdfID = element.getElementsByTagName("cim:Equipment.EquipmentContainer").item(0).getAttributes().item(0).getTextContent().replaceAll("#", "");
+		this.baseVoltage =  Double.parseDouble(element.getElementsByTagName("cim:RotatingMachine.ratedU").item(0).getTextContent());
 		
 		// System.out.println("rdfID: " + rdfID + "\n" + "objectName: " + name + "\n" +
 		// "region_rdf:ID: " + region_rdfID + "\n");
 		return element;
 	}
+	
 
 
 }

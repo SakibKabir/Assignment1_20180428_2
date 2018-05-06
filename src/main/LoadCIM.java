@@ -15,10 +15,7 @@ import org.w3c.dom.NodeList;
 public class LoadCIM {
 	        
 	public static void main(String[] args) throws Exception {
-		SQLdatabase database = new SQLdatabase();
-		database.StartUp();
-	    database.createTables();
-	
+		
 		try {
 			
 			// ---Load EQ file----//
@@ -64,7 +61,10 @@ public class LoadCIM {
 			NodeList ratioTapChangerListSSH = docSSH.getElementsByTagName("cim:RatioTapChanger");
 			
 		
-		
+			SQLdatabase database = new SQLdatabase();
+			database.StartUp();
+		    database.createTables();
+		  
 			// ------------------------------//
 			// ---Load base voltage info ----//
 			// -- rdfID, nominal Voltage ----//
@@ -128,14 +128,15 @@ public class LoadCIM {
 				double GeneUnit_maxP = genunit.maxP(generatingUnit.item(i));
 				double GeneUnit_minP = genunit.minP(generatingUnit.item(i));
 				String GeneUnit_equipCont_rdfID = genunit.equipmentContainer_rdfID(generatingUnit.item(i));
-				//SQLdatabase.GeneratingUnitTable(GeneUnit_rdfID, GeneUnit_name, GeneUnit_maxP, GeneUnit_minP, GeneUnit_equipCont_rdfID );
+				SQLdatabase.GeneratingUnitTable(GeneUnit_rdfID, GeneUnit_name, GeneUnit_maxP, GeneUnit_minP, GeneUnit_equipCont_rdfID );
 				System.out.println("Generating Unit: rdfID: " + GeneUnit_rdfID);
 				System.out.println("                 name: " + GeneUnit_name);
 				System.out.println("                 maxP: " + GeneUnit_maxP);
 				System.out.println("                 minP: " + GeneUnit_minP);
 				System.out.println("                 equipmentContainer_rdfID: " + GeneUnit_equipCont_rdfID);
 			}
-
+			// ------------------------------//
+						
 			// ------------------------------//
 			// Load synchronous machine info-//
 			// ----rdfID, name, ratedS, P----//
@@ -153,9 +154,21 @@ public class LoadCIM {
 				double syncMach_Q = syncMach.Q(syncMachList.item(i));
 				String syncMach_genUnit_rdfID = syncMach.genUnit_rdfID(syncMachList.item(i));
 				String syncMach_regControl_rdfID = syncMach.regControl_rdfID(syncMachList.item(i));
-				String syncMach_equipmentContainer_rdfID = syncMach.genUnit_rdfID(syncMachList.item(i));
-				String syncMach_baseVoltage_rdfID = syncMach.regControl_rdfID(syncMachList.item(i));
-			//	SQLdatabase.SynchronousMachineTable(syncMach_rdfID, syncMach_name, syncMach_ratedS, syncMach_P, syncMach_Q, syncMach_genUnit_rdfID, syncMach_regControl_rdfID, syncMach_equipmentContainer_rdfID, syncMach_baseVoltage_rdfID);
+				String syncMach_equipmentContainer_rdfID = syncMach.equipmentContainer_rdfID(syncMachList.item(i));
+				double syncMach_ratedU = syncMach.baseVoltage(syncMachList.item(i));
+				String syncMach_baseVoltage_rdfID = "Null";
+				for(int j=0; j<baseVoltList.getLength(); j++) {
+					double baseVolt_nominalVoltage = (double) baseVolt.nominalVoltage(baseVoltList.item(j));
+					String baseVolt_rdfID = baseVolt.rdfID(baseVoltList.item(j));
+					if (syncMach_ratedU == baseVolt_nominalVoltage) {
+						syncMach_baseVoltage_rdfID = baseVolt_rdfID;
+					}
+				}
+				
+	  SQLdatabase.SynchronousMachineTable(syncMach_rdfID, syncMach_name, syncMach_ratedS, syncMach_P, syncMach_Q,
+   syncMach_genUnit_rdfID, syncMach_regControl_rdfID, syncMach_equipmentContainer_rdfID, syncMach_baseVoltage_rdfID);
+		//SQLdatabase.SynchronousMachineTable(syncMach_rdfID, syncMach_name, syncMach_ratedS, syncMach_P, syncMach_Q, syncMach_genUnit_rdfID, syncMach_regControl_rdfID, syncMach_equipmentContainer_rdfID, syncMach_baseVoltage_rdfID);
+				
 				System.out.println("Synchronous Machine: rdfID: " + syncMach_rdfID);
 				System.out.println("                     name: " + syncMach_name);
 				System.out.println("                     ratedS: " + syncMach_ratedS);
@@ -163,13 +176,11 @@ public class LoadCIM {
 				System.out.println("                     Q: " + syncMach_Q);
 				System.out.println("                     genUnit rdfId: " + syncMach_genUnit_rdfID);
 				System.out.println("                     regControl_rdfID: " + syncMach_regControl_rdfID);
-				System.out.println(
-						"                     equipmentContainer_rdf:ID: " + syncMach_equipmentContainer_rdfID);
+				System.out.println("                     equipmentContainer_rdf:ID: " + syncMach_equipmentContainer_rdfID);
+				System.out.println("                     rated U: " + syncMach_ratedU);
 				System.out.println("                     baseVoltage_ rdf:ID: " + syncMach_baseVoltage_rdfID);
-
+				// SQLdatabase.SynchronousMachineTable(syncMach_rdfID, syncMach_name, syncMach_ratedS, syncMach_P, syncMach_Q, syncMach_genUnit_rdfID, syncMach_regControl_rdfID, syncMach_equipmentContainer_rdfID, syncMach_baseVoltage_rdfID);
 			}
-
-			// ------------------------------//
 			// -Load Regulating Control info-//
 			// ---rdfID, name, targetValue---//
 			// ----create table: ReguCtrl----//
@@ -184,7 +195,7 @@ public class LoadCIM {
 					if (reglCtrl_rdfID_temp.equals(reglCtrl_rdfID_tempSSH)) {
 						reglCtrl_name = reglCtrl.name(regulCtrlListEQ.item(i));
 						reglCtrl_targetVoltage = reglCtrl.targetValue(regulCtrlListSSH.item(j));
-
+		     		    SQLdatabase.RegulatingControlTable(reglCtrl_rdfID_temp, reglCtrl_name, reglCtrl_targetVoltage);
 						// System.out.println("RegulatingControl : rdfID: " + rdfID_tempSSH);
 						System.out.println("RegulatingControl : rdfID: " + reglCtrl_rdfID_temp);
 						System.out.println("                    name: " + reglCtrl_name);
@@ -193,7 +204,6 @@ public class LoadCIM {
 				}
 
 			}
-
 			// -------------------------------------//
 			// -----Load Power Transformer info-----//
 			// -rdfID, name,quipmentContainer_rdf:ID//
@@ -204,7 +214,7 @@ public class LoadCIM {
 				String powerTran_rdfID = powerTran.rdfID(powerTranList.item(i));
 				String powerTran_name = powerTran.name(powerTranList.item(i));
 				String powerTran_equipCont_rdfID = powerTran.equipConta_rdfID(powerTranList.item(i));
-
+                SQLdatabase.PowerTransformerTable(powerTran_rdfID, powerTran_name, powerTran_equipCont_rdfID);
 				System.out.println("power Transformer: rdfID: " + powerTran_rdfID);
 				System.out.println("                   name: " + powerTran_name);
 				System.out.println("                   region_rdfID: " + powerTran_equipCont_rdfID);
@@ -228,17 +238,15 @@ public class LoadCIM {
 						energyConsu_name = energyConsu.name(energyConsumerList.item(i));
 						energyConsu_P = energyConsu.P(energyConsumerListSSH.item(j));
 						energyConsu_Q = energyConsu.Q(energyConsumerListSSH.item(j));
-						energyConsu_equipmentContainer_rdfID = energyConsu
-								.equipmentContainer_rdfID(energyConsumerList.item(i));
+						energyConsu_equipmentContainer_rdfID = energyConsu.equipmentContainer_rdfID(energyConsumerList.item(i));
 						baseVoltage_rdfID = energyConsu.baseVoltage_rdfID(energyConsumerListSSH.item(i));
-
+                        SQLdatabase.EnergyConsumerTable(energyConsu_rdfID_temp, energyConsu_name, energyConsu_P, energyConsu_Q, energyConsu_equipmentContainer_rdfID, baseVoltage_rdfID);
 						// System.out.println("RegulatingControl : rdfID: " + rdfID_tempSSH);
-						System.out.println("Breaker : rdfID: " + energyConsu_rdfID_temp);
+						System.out.println("Energy Consumer : rdfID: " + energyConsu_rdfID_temp);
 						System.out.println("          name: " + energyConsu_name);
 						System.out.println("          P: " + energyConsu_P);
 						System.out.println("          Q: " + energyConsu_Q);
-						System.out
-								.println("          equipmentContainer rdfID " + energyConsu_equipmentContainer_rdfID);
+						System.out.println("          equipmentContainer rdfID " + energyConsu_equipmentContainer_rdfID);
 						System.out.println("          base voltage rdfID " + baseVoltage_rdfID);
 					}
 				}
@@ -250,7 +258,7 @@ public class LoadCIM {
 			// ------------rdfID, name, P, Q--------//
 			// ------------Transformer_rdf:ID-------//
 			// ------------baseVoltage_ rdf:ID------//
-			// ------create table: RatioTapChan-----//
+			// ------Insert values to Power Transformer End Table-----//
 			// -------------------------------------//
 			PowerTransformerEnd powerTranEnd = new PowerTransformerEnd();
 			for (int i = 0; i < ratioTapChangerList.getLength(); i++) {
@@ -260,7 +268,7 @@ public class LoadCIM {
 				double powerTranEnd_x = powerTranEnd.x(powerTranEndList.item(i));
 				String powerTranEnd_Transformer_rdfID = powerTranEnd.Transformer_rdfID(powerTranEndList.item(i));
 				String powerTranEnd_baseVoltage_rdfID = powerTranEnd.baseVoltage_rdfID(powerTranEndList.item(i));
-
+                SQLdatabase.PowerTransformerEndTable(powerTranEnd_rdfID, powerTranEnd_name, powerTranEnd_r, powerTranEnd_x, powerTranEnd_Transformer_rdfID, powerTranEnd_baseVoltage_rdfID);
 				System.out.println("power transformer end: rdfID: " + powerTranEnd_rdfID);
 				System.out.println("                       name: " + powerTranEnd_name);
 				System.out.println("                       r: " + powerTranEnd_r);
@@ -276,18 +284,18 @@ public class LoadCIM {
 			// ------create table: RatioTapChan-----//
 			// -------------------------------------//
 			Breaker Breaker = new Breaker();
-			String breaker_rdfID_temp, breaker_rdfID_tempSSH, breaker_name, breaker_state,
-					breaker_equipmentContainer_rdfID;
+			String breaker_rdfID_temp, breaker_rdfID_tempSSH, breaker_name, breaker_equipmentContainer_rdfID;
+			boolean breaker_state;
 			for (int i = 0; i < breakerList.getLength(); i++) {
 				breaker_rdfID_temp = reglCtrl.rdfIDEQ(breakerList.item(i));
 				for (int j = 0; j < breakerListSSH.getLength(); j++) {
 					breaker_rdfID_tempSSH = Breaker.rdfIDSSH(breakerListSSH.item(j));
 					if (breaker_rdfID_temp.equals(breaker_rdfID_tempSSH)) {
 						breaker_name = Breaker.name(breakerList.item(i));
-						breaker_equipmentContainer_rdfID = Breaker.equipmentContainer_rdfID(breakerList.item(i));
 						breaker_state = Breaker.state(breakerListSSH.item(j));
+						breaker_equipmentContainer_rdfID = Breaker.equipmentContainer_rdfID(breakerList.item(i));
 						// TO DO: breaker base voltage
-
+				      //  SQLdatabase.BreakerTable(breaker_rdfID_temp, breaker_name, breaker_state, breaker_equipmentContainer_rdfID);
 						// System.out.println("RegulatingControl : rdfID: " + rdfID_tempSSH);
 						System.out.println("Breaker : rdfID: " + breaker_rdfID_temp);
 						System.out.println("          name: " + breaker_name);
@@ -309,7 +317,7 @@ public class LoadCIM {
 				String ratioTapChang_rdfID = ratioTapChanger.rdfID(ratioTapChangerList.item(i));
 				String ratioTapChang_name = ratioTapChanger.name(ratioTapChangerList.item(i));
 				double ratioTapChang_step = ratioTapChanger.step(ratioTapChangerList.item(i));
-
+				SQLdatabase.RatioTapChangerTable(ratioTapChang_rdfID, ratioTapChang_name, ratioTapChang_step);
 				System.out.println("ratio Tap Changer: rdfID: " + ratioTapChang_rdfID);
 				System.out.println("                   name: " + ratioTapChang_name);
 				System.out.println("                   region_rdfID: " + ratioTapChang_step);

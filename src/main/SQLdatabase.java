@@ -51,92 +51,142 @@ public class SQLdatabase {
 		public static void createTables() throws Exception{
 			
 			try{
-				// Create Base Voltage table with corresponding attributes
-				sql = "CREATE TABLE IF NOT EXISTS BaseVoltage"
-						+ "(rdfID VARCHAR(40) NOT NULL, NominalValue DOUBLE, PRIMARY KEY (rdfID))";
-				stmt.executeUpdate(sql) ; // execute query
+				                  //--------BaseVoltage---------//
+				sql = "DROP TABLE IF EXISTS BaseVoltage";
+				stmt.executeUpdate(sql);
+				sql = "CREATE TABLE IF NOT EXISTS BaseVoltage(RDFID VARCHAR(50) NOT NULL, "
+						+ "Nominal_value DOUBLE, PRIMARY KEY(RDFID))"; 
+				stmt.executeUpdate(sql) ;
+				sql ="ALTER TABLE BaseVoltage ADD INDEX column_1_idx(Nominal_value)";
+				stmt.executeUpdate(sql) ;
 				System.out.println("Created BaseVoltage table in MicroGrid database successfully...");
+				                   //----------------------------//
 				
-				// Create Substation table with corresponding attributes
-				sql = "CREATE TABLE IF NOT EXISTS Substation"
-						+ "(rdfID VARCHAR(40) NOT NULL, Name VARCHAR(40), Region_rdfID VARCHAR(40),"
-						+ "PRIMARY KEY (rdfID))";
-				stmt.executeUpdate(sql) ; // execute query
+				                   //----------Substation--------//
+				sql = "DROP TABLE IF EXISTS Substation";
+				stmt.executeUpdate(sql);
+				sql = "CREATE TABLE IF NOT EXISTS Substation(RDFID VARCHAR(50) NOT NULL, "
+						+ "Name VARCHAR(20), Region_rdfID VARCHAR(50), PRIMARY KEY(RDFID))";
+				stmt.executeUpdate(sql) ;
 				System.out.println("Created Substation table in MicroGrid database successfully...");
+				                      //---------------------------//
 				
-				// Create Voltage Level table with corresponding attributes
-				sql = "CREATE TABLE IF NOT EXISTS VoltageLevel"
-						+ "(rdfID VARCHAR(40) NOT NULL, Name VARCHAR(40), Substation_rdfID VARCHAR(40),"
-						+ "BaseVoltage_rdfID VARCHAR(40), PRIMARY KEY (rdfID),"
-						+ "FOREIGN KEY (Substation_rdfID)"// REFERENCES Substation(rdfID),"
-						+ "FOREIGN KEY (BaseVoltage_rdfID))";// REFERENCES BaseVoltage(rdfID))";
-				stmt.executeUpdate(sql) ; // execute query
+				                      //---------VoltageLevel------//
+				sql = "DROP TABLE IF EXISTS Voltage_Level";
+				stmt.executeUpdate(sql);
+				sql = "CREATE TABLE IF NOT EXISTS Voltage_Level(RDFID VARCHAR(50) NOT NULL, "
+						+ "Name VARCHAR(20), Substation_rdfID VARCHAR(75), "
+						+ "Base_Voltage_rdfID VARCHAR(75), PRIMARY KEY(RDFID),"
+						+ "FOREIGN KEY(Substation_rdfID) REFERENCES Substation(RDFID) ,"
+						+ "FOREIGN KEY(base_Voltage_rdfID) REFERENCES BaseVoltage(RDFID))"; 
+				stmt.executeUpdate(sql) ;
 				System.out.println("Created VoltageLevel table in MicroGrid database successfully...");
+				                      //---------------------------//
 				
-				// Create Generating Unit table with corresponding attributes
-				sql = "CREATE TABLE IF NOT EXISTS GeneratingUnit"
-						+ "(rdfID VARCHAR(40) NOT NULL, Name VARCHAR(40), MaxP DOUBLE, MinP DOUBLE,"
-						+ "EquipmentContainer_rdfID VARCHAR(40), PRIMARY KEY (rdfID),"
-						+ "FOREIGN KEY (EquipmentContainer_rdfID) REFERENCES Substation(rdfID))";
-				stmt.executeUpdate(sql) ; // execute query
+				                      //--------Generating Unit----//
+				sql = "DROP TABLE IF EXISTS Generating_Unit";
+				stmt.executeUpdate(sql);
+				sql = "CREATE TABLE IF NOT EXISTS Generating_Unit(RDFID VARCHAR(50) NOT NULL, "
+						+ "Name VARCHAR(20), MAXP DOUBLE, MINP DOUBLE, "
+						+ "Equipment_Container_rdfID VARCHAR(75), PRIMARY KEY(RDFID), "
+						+ "FOREIGN KEY(Equipment_Container_rdfID) REFERENCES Substation(RDFID))";
+				stmt.executeUpdate(sql) ;
 				System.out.println("Created GeneratingUnit table in MicroGrid database successfully...");
-							
-				// Create Synchronous Machine table with corresponding attributes
-				sql = "CREATE TABLE IF NOT EXISTS SynchronousMachine"
-						+ "(rdfID VARCHAR(40) NOT NULL, Name VARCHAR(40), RatedS DOUBLE, P DOUBLE, Q DOUBLE,"
-						+ "GenUnit_rdfID VARCHAR(40), RegControl_rdfID VARCHAR(40),"
-						+ "EquipmentContainer_rdfID VARCHAR(40), PRIMARY KEY (rdfID),"
-						+ "FOREIGN KEY (GenUnit_rdfID) REFERENCES GeneratingUnit(rdfID),"
-						+ "FOREIGN KEY (EquipmentContainer_rdfID) REFERENCES VoltageLevel(rdfID))";
-				stmt.executeUpdate(sql) ; // execute query
+				                      //---------------------------//
+				sql = "DROP TABLE IF EXISTS Synchronous_Machine";
+				stmt.executeUpdate(sql);
+				sql = "CREATE TABLE IF NOT EXISTS Synchronous_Machine( RDFID VARCHAR(50) NOT NULL, "
+						+ "Name VARCHAR(20), RatedS DOUBLE, P DOUBLE, Q DOUBLE, "
+						+ "genunit_rdfID VARCHAR(75), regcontrol_rdfID VARCHAR(75), "
+						+ "Equipment_Container_rdfID VARCHAR(75), base_Voltage_rdfID VARCHAR(75), PRIMARY KEY(RDFID) )";
+						//+ "FOREIGN KEY(genunit_rdfID) REFERENCES Generating_Unit(RDFID), "
+						//+ "FOREIGN KEY(regcontrol_rdfID) REFERENCES Regulating_Control(RDFID), "
+						//+ "FOREIGN KEY(Equipment_Container_rdfID) REFERENCES Voltage_Level(RDFID))"; 
 				System.out.println("Created SynchronousMachine table in MicroGrid database successfully...");
-				
-				// Create Regulating Control table with corresponding attributes
-				sql = "CREATE TABLE IF NOT EXISTS RegulatingControl"
-						+ "(rdfID VARCHAR(40) NOT NULL, Name VARCHAR(40), TargetValue DOUBLE,"
-						+ "PRIMARY KEY (rdfID))";
-				stmt.executeUpdate(sql) ; // execute query
+				stmt.executeUpdate(sql) ;
+
+				    /*                  //----Synchronous Machine----//
+				sql = "DROP TABLE IF EXISTS Synchronous_Machine";
+				stmt.executeUpdate(sql);
+				sql = "CREATE TABLE IF NOT EXISTS Synchronous_Machine(RDFID VARCHAR(50) NOT NULL, "
+						+ "Name VARCHAR(20), RatedS DOUBLE, P DOUBLE, Q DOUBLE, "
+						+ "genunit_rdfID VARCHAR(75), regcontrol_rdfID VARCHAR(75), "
+						+ "Equipment_Container_rdfID VARCHAR(75), base_Voltage_rdfID VARCHAR(75), PRIMARY KEY(RDFID),"
+						+ "FOREIGN KEY(genunit_rdfID) REFERENCES Generating_Unit(RDFID), "
+						+ "FOREIGN KEY(regcontrol_rdfID) REFERENCES Regulating_Control(RDFID), "
+						+ "FOREIGN KEY(Equipment_Container_rdfID) REFERENCES Voltage_Level(RDFID),"
+						+ "FOREIGN KEY(base_Voltage_rdfID) REFERENCES BaseVoltage(RDFID))"; 
+				stmt.executeUpdate(sql) ;
+				System.out.println("Created SynchronousMachine table in MicroGrid database successfully...");
+				                     //---------------------------//
+			//	*/ 
+				///*                    //----Regulating Control----//
+				sql = "DROP TABLE IF EXISTS Regulating_Control";
+				stmt.executeUpdate(sql);
+				sql = "CREATE TABLE IF NOT EXISTS Regulating_Control( RDFID VARCHAR(50) NOT NULL, "
+						+ "Name VARCHAR(20), Target_Value DOUBLE, PRIMARY KEY(RDFID))"; 
+				stmt.executeUpdate(sql) ;
 				System.out.println("Created RegulatingControl table in MicroGrid database successfully...");
-							
-				// Create Power Transformer table with corresponding attributes
-				sql = "CREATE TABLE IF NOT EXISTS PowerTransformer"
-						+ "(rdfID VARCHAR(40) NOT NULL, Name VARCHAR(40),"
-						+ "EquipmentContainer_rdfID VARCHAR(40), PRIMARY KEY (rdfID),"
-						+ "FOREIGN KEY (EquipmentContainer_rdfID) REFERENCES Substation(rdfID))";
-				stmt.executeUpdate(sql) ; // execute query
+				                    //---------------------------//
+				// /* 
+				                     //----Power Transformer-----//
+				sql = "DROP TABLE IF EXISTS Power_Transformer";
+				stmt.executeUpdate(sql);
+				sql = "CREATE TABLE IF NOT EXISTS Power_Transformer(RDFID VARCHAR(50) NOT NULL, "
+						+ "Name VARCHAR(20), Equipment_Container_rdfID VARCHAR(75), PRIMARY KEY(RDFID), "
+						+ "FOREIGN KEY(Equipment_Container_rdfID) REFERENCES Substation(RDFID))"; 
+				stmt.executeUpdate(sql);
 				System.out.println("Created PowerTransformer table in MicroGrid database successfully...");
-				
-				// Create Energy Consumer table with corresponding attributes
-				sql = "CREATE TABLE IF NOT EXISTS EnergyConsumer"
-						+ "(rdfID VARCHAR(40) NOT NULL, Name VARCHAR(40), P DOUBLE, Q DOUBLE,"
-						+ "EquipmentContainer_rdfID VARCHAR(40), PRIMARY KEY (rdfID),"
-						+ "FOREIGN KEY (EquipmentContainer_rdfID) REFERENCES VoltageLevel(rdfID))";
-				stmt.executeUpdate(sql) ; // execute query
+			                     	 //---------------------------//
+				  
+				 ///*                  //-----Energy Consumer-------//
+				sql = "DROP TABLE IF EXISTS Energy_Consumer";
+				stmt.executeUpdate(sql);
+				sql = "CREATE TABLE IF NOT EXISTS Energy_Consumer(RDFID VARCHAR(50) NOT NULL, "
+						+ "Name VARCHAR(20), P DOUBLE, Q DOUBLE, Equipment_Container_rdfID VARCHAR(75), "
+						+ "base_Voltage_rdfID VARCHAR(75), PRIMARY KEY(RDFID), "
+						+ "FOREIGN KEY(Equipment_Container_rdfID) REFERENCES Voltage_Level(RDFID),"
+						+ "FOREIGN KEY(base_Voltage_rdfID) REFERENCES BaseVoltage(RDFID))"; 
+				stmt.executeUpdate(sql);
 				System.out.println("Created EnergyConsumer table in MicroGrid database successfully...");
-				
-				// Create Transformer Winding table with corresponding attributes
-				sql = "CREATE TABLE IF NOT EXISTS TransformerWinding"
-						+ "(rdfID VARCHAR(40) NOT NULL, Name VARCHAR(40), TransformerR DOUBLE,"
-						+ "TransformerX DOUBLE, Transformer_rdfID VARCHAR(40), BaseVoltage_rdfID VARCHAR(40),"
-						+ "PRIMARY KEY (rdfID), FOREIGN KEY(Transformer_rdfID) REFERENCES PowerTransformer(rdfID),"
-						+ "FOREIGN KEY(BaseVoltage_rdfID) REFERENCES BaseVoltage(rdfID))";
-				stmt.executeUpdate(sql) ; // execute query
+				                    //---------------------------//
+			     //	*/
+				                    //----Transformer winding----//
+				sql = "DROP TABLE IF EXISTS Power_Transformer_End";
+				stmt.executeUpdate(sql);
+				sql = "CREATE TABLE IF NOT EXISTS Power_Transformer_End(RDFID VARCHAR(50) NOT NULL,"
+						+ "Name VARCHAR(20), Transformer_r DOUBLE, Transformer_x DOUBLE,"
+						+ "Transformer_rdfID VARCHAR(75), base_Voltage_rdfID VARCHAR(75), PRIMARY KEY(RDFID),"
+						+ "FOREIGN KEY(Transformer_rdfID) REFERENCES Power_Transformer(RDFID),"
+						+ "FOREIGN KEY(base_Voltage_rdfID) REFERENCES BaseVoltage(RDFID))"; 
+				stmt.executeUpdate(sql) ;
 				System.out.println("Created TransformerWinding table in MicroGrid database successfully...");
+				                    //---------------------------//
 				
+				                    //-----------Breaker---------//
 				// Create Breaker table with corresponding attributes
-				sql = "CREATE TABLE IF NOT EXISTS Breaker"
-						+ "(rdfID VARCHAR(40) NOT NULL, Name VARCHAR(40), State BOOLEAN,"
-						+ "EquipmentContainer_rdfID VARCHAR(40), PRIMARY KEY (rdfID),"
-						+ "FOREIGN KEY (EquipmentContainer_rdfID) REFERENCES VoltageLevel(rdfID))";
-				stmt.executeUpdate(sql) ; // execute query
+				sql = "DROP TABLE IF EXISTS Breaker";
+				stmt.executeUpdate(sql);
+				sql = "CREATE TABLE IF NOT EXISTS Breaker(RDFID VARCHAR(50) NOT NULL, "
+						+ "Name VARCHAR(20), State VARCHAR(30), Equipment_Container_rdfID VARCHAR(75), "
+						+ "base_Voltage_rdfID VARCHAR(75), PRIMARY KEY(RDFID),"
+						+ "FOREIGN KEY(base_Voltage_rdfID) REFERENCES BaseVoltage(RDFID),"
+						+ "FOREIGN KEY(Equipment_Container_rdfID) REFERENCES Voltage_Level(RDFID),"
+						+ "FOREIGN KEY(base_Voltage_rdfID) REFERENCES BaseVoltage(RDFID))";
+				stmt.executeUpdate(sql) ;
 				System.out.println("Created Breaker table in MicroGrid database successfully...");
+				                    //---------------------------//
 				
-				// Create Ratio Tap Changer table with corresponding attributes
-				sql = "CREATE TABLE IF NOT EXISTS RatioTapChanger"
-						+ "(rdfID VARCHAR(40) NOT NULL, Name VARCHAR(40), Step DOUBLE,"
-						+ "PRIMARY KEY (rdfID))";					
-				stmt.executeUpdate(sql) ; // execute query
+				                    //----Ratio Tap Changer------//
+				sql = "DROP TABLE IF EXISTS Ratio_Tap_Changer";
+				stmt.executeUpdate(sql);
+				sql = "CREATE TABLE IF NOT EXISTS Ratio_Tap_Changer(RDFID VARCHAR(50) NOT NULL, "
+						+ "Name VARCHAR(20), Step DOUBLE, PRIMARY KEY(RDFID))"; 
+				stmt.executeUpdate(sql) ;
 				System.out.println("Created RatioTapChanger table in MicroGrid database successfully...");
+				                     //---------------------------//
+				                     //-----------THE END--------//
+		//		*/
 			   }
 			
 			catch(SQLException se){
@@ -187,7 +237,7 @@ public class SQLdatabase {
 		  //------For Voltage Level Table-----//
 		 public void VoltageLevelTable(String rdfID, String Name, String Substation_rdfID, String BaseVoltage_rdfID){
 			try {
-				String query = "INSERT INTO VoltageLevel VALUES(?,?,?,?)";
+				String query = "INSERT INTO Voltage_Level VALUES(?,?,?,?)";
 				PreparedStatement preparedStmt = conn.prepareStatement(query);
 				preparedStmt.setString(1,rdfID);
 				preparedStmt.setString(2,Name);
@@ -207,7 +257,7 @@ public class SQLdatabase {
 					double geneUnit_minP, String geneUnit_equipCont_rdfID) {
 				// TODO Auto-generated method stub
 			 try {
-					String query = "INSERT INTO GeneratingUnit VALUES(?,?,?,?,?)";
+					String query = "INSERT INTO Generating_Unit VALUES(?,?,?,?,?)";
 					PreparedStatement preparedStmt = conn.prepareStatement(query);
 					preparedStmt.setString(1,geneUnit_rdfID);
 					preparedStmt.setString(2,geneUnit_name);
@@ -221,32 +271,13 @@ public class SQLdatabase {
 				se.printStackTrace();}
 				catch(Exception e){
 				e.printStackTrace();}			
-				}
-				
+		 }
 		
-
-	/*	public static void GeneratingUnitTable(String rdfID, String Name, double MaxP, double MinP, String EquipmentContainer_rdfID){
-			try {
-				String query = "INSERT INTO GeneratingUnit VALUES(?,?,?,?,?)";
-				PreparedStatement preparedStmt = conn.prepareStatement(query);
-				preparedStmt.setString(1,rdfID);
-				preparedStmt.setString(2,Name);
-				preparedStmt.setDouble(3,MaxP);
-				preparedStmt.setDouble(4,MinP);
-				preparedStmt.setString(5,EquipmentContainer_rdfID);
-				preparedStmt.executeUpdate();
-				System.out.println("Inserted Values into Generating Unit table successfully...");
-			   }
-			catch(SQLException se){
-			se.printStackTrace();}
-			catch(Exception e){
-			e.printStackTrace();}			
-			}*/
-		
+		//------For Synchronous Machine Table-----//
 		public static void SynchronousMachineTable(String rdfID, String Name, double RatedS, double P, double Q,
-				String GenUnit_rdfID, String RegControl_rdfID, String EquipmentContainer_rdfID){
+				String GenUnit_rdfID, String RegControl_rdfID, String EquipmentContainer_rdfID, String syncMach_baseVoltage_rdfID){
 			try {
-				String query = "INSERT INTO SynchronousMachine VALUES(?,?,?,?,?,?,?,?)";
+			String query = "INSERT INTO Synchronous_Machine VALUES(?,?,?,?,?,?,?,?,?)";
 				PreparedStatement preparedStmt = conn.prepareStatement(query);
 				preparedStmt.setString(1,rdfID);
 				preparedStmt.setString(2,Name);
@@ -256,6 +287,7 @@ public class SQLdatabase {
 				preparedStmt.setString(6,GenUnit_rdfID);
 				preparedStmt.setString(7,RegControl_rdfID);
 				preparedStmt.setString(8,EquipmentContainer_rdfID);
+				preparedStmt.setString(9,syncMach_baseVoltage_rdfID);
 				preparedStmt.executeUpdate();
 				System.out.println("Inserted Values into Synchronous Machine table successfully...");
 			   }
@@ -265,14 +297,15 @@ public class SQLdatabase {
 			e.printStackTrace();}			
 			}
 		
-		public void RegControlTab(String rdfID, String Name, double TargetValue){
+		public static void RegulatingControlTable(String rdfID, String Name, double TargetValue){
 			try {
-				String query = "INSERT INTO RegulatingControl VALUES(?,?,?)";
+				String query = "INSERT INTO Regulating_Control VALUES(?,?,?)";
 				PreparedStatement preparedStmt = conn.prepareStatement(query);
 				preparedStmt.setString(1,rdfID);
 				preparedStmt.setString(2,Name);
 				preparedStmt.setDouble(3,TargetValue);
 				preparedStmt.executeUpdate();
+				System.out.println("Inserted Values into Regualting Control table successfully...");
 			   }
 			catch(SQLException se){
 			se.printStackTrace();}
@@ -280,42 +313,48 @@ public class SQLdatabase {
 			e.printStackTrace();}			
 			}
 		
-		public void PowerTransformerTab(String rdfID, String Name, String EquipmentContainer_rdfID){
+		public static void PowerTransformerTable(String rdfID, String Name, String EquipmentContainer_rdfID){
 			try {
-				String query = "INSERT INTO PowerTransformer VALUES(?,?,?)";
+				String query = "INSERT INTO Power_Transformer VALUES(?,?,?)";
 				PreparedStatement preparedStmt = conn.prepareStatement(query);
 				preparedStmt.setString(1,rdfID);
 				preparedStmt.setString(2,Name);
 				preparedStmt.setString(3,EquipmentContainer_rdfID);
 				preparedStmt.executeUpdate();
+				System.out.println("Inserted Values into Power Transformer table successfully...");
 			   }
 			catch(SQLException se){
 			se.printStackTrace();}
 			catch(Exception e){
 			e.printStackTrace();}			
 			}
-		
-		public void EnergyConsumerTab(String rdfID, String Name, double P, double Q, String EquipmentContainer_rdfID){
+		    public static void EnergyConsumerTable(String energyConsu_rdfID_temp, String energyConsu_name,
+				double energyConsu_P, double energyConsu_Q, String energyConsu_equipmentContainer_rdfID,
+				String baseVoltage_rdfID) {
+			// TODO Auto-generated method stub
 			try {
-				String query = "INSERT INTO EnergyConsumer VALUES(?,?,?,?,?)";
+				String query = "INSERT INTO Energy_Consumer VALUES(?,?,?,?,?,?)";
 				PreparedStatement preparedStmt = conn.prepareStatement(query);
-				preparedStmt.setString(1,rdfID);
-				preparedStmt.setString(2,Name);
-				preparedStmt.setDouble(3,P);
-				preparedStmt.setDouble(4,Q);
-				preparedStmt.setString(5,EquipmentContainer_rdfID);
+				preparedStmt.setString(1,energyConsu_rdfID_temp);
+				preparedStmt.setString(2,energyConsu_name);
+				preparedStmt.setDouble(3,energyConsu_P);
+				preparedStmt.setDouble(4,energyConsu_Q);
+				preparedStmt.setString(5,energyConsu_equipmentContainer_rdfID);
+				preparedStmt.setString(6,baseVoltage_rdfID);
 				preparedStmt.executeUpdate();
+				System.out.println("Inserted Values into Energy Consumer table successfully...");
 			   }
 			catch(SQLException se){
 			se.printStackTrace();}
 			catch(Exception e){
-			e.printStackTrace();}			
+			e.printStackTrace();}
+						
 			}
 		
-		public void TransformerWindingTab(String rdfID, String Name, double TransformerR, double TransformerX,
+		public static void PowerTransformerEndTable(String rdfID, String Name, double TransformerR, double TransformerX,
 				String Transformer_rdfID, String BaseVoltage_rdfID){
 			try {
-				String query = "INSERT INTO TransformerWinding VALUES(?,?,?,?,?,?)";
+				String query = "INSERT INTO Power_Transformer_End VALUES(?,?,?,?,?,?)";
 				PreparedStatement preparedStmt = conn.prepareStatement(query);
 				preparedStmt.setString(1,rdfID);
 				preparedStmt.setString(2,Name);
@@ -324,6 +363,7 @@ public class SQLdatabase {
 				preparedStmt.setString(5,Transformer_rdfID);
 				preparedStmt.setString(6,BaseVoltage_rdfID);
 				preparedStmt.executeUpdate();
+				System.out.println("Inserted Values into Power Transformer End table successfully...");
 			   }
 			catch(SQLException se){
 			se.printStackTrace();}
@@ -331,7 +371,7 @@ public class SQLdatabase {
 			e.printStackTrace();}			
 			}
 		
-		public void BreakerTab(String rdfID, String Name, boolean State, String EquipmentContainer_rdfID){
+		public static void BreakerTable(String rdfID, String Name, boolean State, String EquipmentContainer_rdfID){
 			try {
 				String query = "INSERT INTO Breaker VALUES(?,?,?,?)";
 				PreparedStatement preparedStmt = conn.prepareStatement(query);
@@ -340,6 +380,7 @@ public class SQLdatabase {
 				preparedStmt.setBoolean(3,State);
 				preparedStmt.setString(4,EquipmentContainer_rdfID);
 				preparedStmt.executeUpdate();
+				System.out.println("Inserted Values into Breaker table successfully...");
 			   }
 			catch(SQLException se){
 			se.printStackTrace();}
@@ -347,19 +388,27 @@ public class SQLdatabase {
 			e.printStackTrace();}			
 			}	
 		
-		public void TapChangerTab(String rdfID, String Name, double Step){
+	
+		public static void RatioTapChangerTable(String ratioTapChang_rdfID, String ratioTapChang_name,
+				double ratioTapChang_step) {
+			// TODO Auto-generated method stub
 			try {
-				String query = "INSERT INTO RatioTapChanger VALUES(?,?,?)";
+				String query = "INSERT INTO Ratio_Tap_Changer VALUES(?,?,?)";
 				PreparedStatement preparedStmt = conn.prepareStatement(query);
-				preparedStmt.setString(1,rdfID);
-				preparedStmt.setString(2,Name);
-				preparedStmt.setDouble(3,Step);
+				preparedStmt.setString(1,ratioTapChang_rdfID);
+				preparedStmt.setString(2,ratioTapChang_name);
+				preparedStmt.setDouble(3,ratioTapChang_step);
 				preparedStmt.executeUpdate();
+				System.out.println("Inserted Values into Ratio_Tap_Changer table successfully...");
 			   }
 			catch(SQLException se){
 			se.printStackTrace();}
 			catch(Exception e){
 			e.printStackTrace();}			
 			}
-				
-	}
+
+		
+			
+		}
+		
+	
